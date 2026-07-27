@@ -1,152 +1,263 @@
-
 package com.sentio.fakeplayer;
 
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
 
 public class FakePlayerManager {
 
+
     private static final List<String> fakePlayers = new ArrayList<>();
 
-    private static File file;
-    private static YamlConfiguration config;
 
 
-    // Khởi tạo file
-    public static void setup() {
-
-        File folder = SentioFakePlayer.getInstance().getDataFolder();
-
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-
-
-        file = new File(folder, "fakeplayers.yml");
-
-
-        if (!file.exists()) {
-
-            try {
-                file.createNewFile();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        config = YamlConfiguration.loadConfiguration(file);
-
-        load();
-    }
-
-
-
-    // Load dữ liệu
-    public static void load() {
-
-        fakePlayers.clear();
-
-        List<String> list =
-                config.getStringList("fakeplayers");
-
-
-        fakePlayers.addAll(list);
-    }
-
-
-
-
-    // Lưu dữ liệu
-    public static void save() {
-
-        config.set(
-                "fakeplayers",
-                fakePlayers
-        );
-
-
-        try {
-
-            config.save(file);
-
-        } catch (IOException e) {
-
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-    // Thêm fake player
+    /**
+     * Thêm Fake Player
+     */
     public static boolean add(String name) {
 
-        if (exists(name)) {
+
+        if (name == null || name.isEmpty()) {
+
             return false;
+
         }
+
+
+
+        if (exists(name)) {
+
+            return false;
+
+        }
+
+
+
+        if (isFull()) {
+
+            return false;
+
+        }
+
 
 
         fakePlayers.add(name);
 
-        save();
-
         return true;
+
     }
 
 
 
 
 
-    // Xoá fake player
+    /**
+     * Xóa Fake Player
+     */
     public static boolean remove(String name) {
 
-        if (!exists(name)) {
+
+        if (name == null) {
+
             return false;
+
         }
 
 
-        fakePlayers.remove(name);
+        return fakePlayers.remove(name);
 
-        save();
-
-        return true;
     }
 
 
 
 
 
-    // Kiểm tra tồn tại
+    /**
+     * Kiểm tra Fake Player tồn tại
+     */
     public static boolean exists(String name) {
 
-        return fakePlayers.contains(name);
+
+        return fakePlayers
+                .contains(name);
+
     }
 
 
 
 
 
-    // Lấy danh sách
+    /**
+     * Lấy toàn bộ Fake Player
+     */
     public static List<String> getPlayers() {
 
-        return fakePlayers;
+
+        return Collections
+                .unmodifiableList(
+                        fakePlayers
+                );
+
     }
 
 
 
 
 
-    // Xoá tất cả
+    /**
+     * Số lượng Fake Player hiện tại
+     */
+    public static int getCount() {
+
+
+        return fakePlayers.size();
+
+    }
+
+
+
+
+
+    /**
+     * Xóa tất cả Fake Player
+     */
     public static void clear() {
+
 
         fakePlayers.clear();
 
-        save();
     }
+
+
+
+
+
+    /**
+     * Kiểm tra giới hạn
+     */
+    public static boolean isFull() {
+
+
+        int max =
+                500;
+
+
+
+        if (SentioFakePlayer.getInstance() != null) {
+
+
+            max =
+            SentioFakePlayer
+                    .getInstance()
+                    .getConfig()
+                    .getInt(
+                        "settings.max-fakeplayers",
+                        500
+                    );
+
+        }
+
+
+
+        return fakePlayers.size() >= max;
+
+    }
+
+
+
+
+
+    /**
+     * Tìm tên gần giống
+     */
+    public static String find(String text) {
+
+
+        for (String name : fakePlayers) {
+
+
+            if (name.equalsIgnoreCase(text)) {
+
+                return name;
+
+            }
+
+        }
+
+
+        return null;
+
+    }
+
+
+
+
+
+    /**
+     * Đổi tên Fake Player
+     */
+    public static boolean rename(
+            String oldName,
+            String newName
+    ) {
+
+
+        if (!exists(oldName)) {
+
+            return false;
+
+        }
+
+
+
+        if (exists(newName)) {
+
+            return false;
+
+        }
+
+
+
+        int index =
+                fakePlayers.indexOf(oldName);
+
+
+
+        fakePlayers.set(
+                index,
+                newName
+        );
+
+
+
+        return true;
+
+    }
+
+
+
+
+
+    /**
+     * In danh sách dạng String
+     */
+    public static String getList() {
+
+
+        if (fakePlayers.isEmpty()) {
+
+            return "Không có Fake Player";
+
+        }
+
+
+
+        return String.join(
+                ", ",
+                fakePlayers
+        );
+
+    }
+
 }
