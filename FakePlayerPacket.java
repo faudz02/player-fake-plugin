@@ -3,40 +3,46 @@ package com.sentio.fakeplayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 
 public class FakePlayerPacket {
 
 
-    private static final Set<String> fakeTabPlayers =
-            new HashSet<>();
-
+    private static final Map<String, FakePlayerData> fakePlayers =
+            new HashMap<>();
 
 
 
     public static void addFakePlayer(String name) {
 
 
-        if (fakeTabPlayers.contains(name)) {
+        if (fakePlayers.containsKey(name)) {
             return;
         }
 
 
-        fakeTabPlayers.add(name);
+        FakePlayerData data =
+                new FakePlayerData(
+                        name,
+                        UUID.randomUUID(),
+                        20
+                );
 
 
+        fakePlayers.put(
+                name,
+                data
+        );
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
 
-            sendAdd(player, name);
-
-        }
+        updateAllTab();
 
 
         Bukkit.getLogger().info(
-                "[SentioFakePlayer] Added TAB: " + name
+                "[SentioFakePlayer] Added: " + name
         );
 
     }
@@ -48,19 +54,14 @@ public class FakePlayerPacket {
     public static void removeFakePlayer(String name) {
 
 
-        fakeTabPlayers.remove(name);
+        fakePlayers.remove(name);
 
 
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-
-            sendRemove(player, name);
-
-        }
+        updateAllTab();
 
 
         Bukkit.getLogger().info(
-                "[SentioFakePlayer] Removed TAB: " + name
+                "[SentioFakePlayer] Removed: " + name
         );
 
     }
@@ -69,27 +70,16 @@ public class FakePlayerPacket {
 
 
 
-    private static void sendAdd(
-            Player receiver,
-            String name
-    ) {
+    public static void updateAllTab() {
 
 
-        /*
-         * Paper 1.21.1 NMS:
-         *
-         * ClientboundPlayerInfoUpdatePacket
-         * GameProfile
-         * ServerPlayer
-         *
-         * Cần build theo mapping
-         * paperweight-userdev
-         */
+        for (Player player :
+                Bukkit.getOnlinePlayers()) {
 
 
-        receiver.sendMessage(
-                "§a[FakePlayer] §f" + name
-        );
+            updateTab(player);
+
+        }
 
     }
 
@@ -97,16 +87,35 @@ public class FakePlayerPacket {
 
 
 
-    private static void sendRemove(
-            Player receiver,
-            String name
-    ) {
+    private static void updateTab(Player player) {
 
 
-        /*
-         * ClientboundPlayerInfoRemovePacket
-         */
+        StringBuilder header =
+                new StringBuilder();
 
+
+        header.append("§b§lSentio Network\n");
+        header.append("§7Fake Players: §f")
+                .append(fakePlayers.size())
+                .append("\n\n");
+
+
+
+        StringBuilder footer =
+                new StringBuilder();
+
+
+        footer.append("\n§aOnline: §f")
+                .append(
+                        Bukkit.getOnlinePlayers().size()
+                );
+
+
+
+        player.sendPlayerListHeaderAndFooter(
+                header.toString(),
+                footer.toString()
+        );
 
     }
 
@@ -117,7 +126,7 @@ public class FakePlayerPacket {
     public static boolean exists(String name) {
 
 
-        return fakeTabPlayers.contains(name);
+        return fakePlayers.containsKey(name);
 
     }
 
@@ -125,10 +134,21 @@ public class FakePlayerPacket {
 
 
 
-    public static Set<String> getPlayers() {
+    public static int getCount() {
 
 
-        return fakeTabPlayers;
+        return fakePlayers.size();
+
+    }
+
+
+
+
+
+    public static Map<String, FakePlayerData> getPlayers() {
+
+
+        return fakePlayers;
 
     }
 
@@ -139,7 +159,62 @@ public class FakePlayerPacket {
     public static void clear() {
 
 
-        fakeTabPlayers.clear();
+        fakePlayers.clear();
+
+        updateAllTab();
+
+    }
+
+
+
+
+
+    public static class FakePlayerData {
+
+
+        private final String name;
+
+        private final UUID uuid;
+
+        private final int ping;
+
+
+
+        public FakePlayerData(
+                String name,
+                UUID uuid,
+                int ping
+        ) {
+
+            this.name = name;
+            this.uuid = uuid;
+            this.ping = ping;
+
+        }
+
+
+
+        public String getName() {
+
+            return name;
+
+        }
+
+
+
+        public UUID getUuid() {
+
+            return uuid;
+
+        }
+
+
+
+        public int getPing() {
+
+            return ping;
+
+        }
 
     }
 
