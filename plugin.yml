@@ -1,1 +1,11 @@
 
+name: SentioFakePlayer
+version: 1.0
+main: com.sentio.fakeplayer.SentioFakePlayer
+api-version: 1.21
+author: Sentio
+
+commands:
+  fakeplayer:
+    description: Manage fake players
+    permission: sentio.fakeplayer
