@@ -3,8 +3,11 @@ package com.sentio.fakeplayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 
 public class FakePlayerCommand implements CommandExecutor {
+
 
     @Override
     public boolean onCommand(
@@ -14,165 +17,351 @@ public class FakePlayerCommand implements CommandExecutor {
             String[] args
     ) {
 
-        // /fakeplayer
-        if (args.length == 0) {
 
-            sender.sendMessage("§b§lSentioFakePlayer");
-            sender.sendMessage("§7/fakeplayer create <name> <amount>");
-            sender.sendMessage("§7/fakeplayer remove <name>");
-            sender.sendMessage("§7/fakeplayer list");
-
-            return true;
-        }
-
-
-        // CREATE
-        if (args[0].equalsIgnoreCase("create")) {
-
-            if (args.length < 3) {
-                sender.sendMessage(
-                        "§cDùng: /fakeplayer create <name> <amount>"
-                );
-                return true;
-            }
-
-            String name = args[1];
-
-            int amount;
-
-            try {
-                amount = Integer.parseInt(args[2]);
-
-            } catch (NumberFormatException e) {
-
-                sender.sendMessage(
-                        "§cSố lượng phải là số!"
-                );
-
-                return true;
-            }
-
-
-            if (amount <= 0) {
-
-                sender.sendMessage(
-                        "§cSố lượng phải lớn hơn 0!"
-                );
-
-                return true;
-            }
-
-
-            int created = 0;
-
-
-            for (int i = 1; i <= amount; i++) {
-
-                String fakeName = i + name;
-
-
-                if (!FakePlayerManager.exists(fakeName)) {
-
-                    FakePlayerManager.add(fakeName);
-
-                    created++;
-                }
-            }
-
+        if (!sender.hasPermission("sentio.fakeplayer")) {
 
             sender.sendMessage(
-                    "§a✔ Đã tạo §f" +
-                    created +
-                    " §aFake Player!"
+                    "§cBạn không có quyền sử dụng lệnh này!"
             );
-
 
             return true;
         }
 
 
 
-        // REMOVE
+        if (args.length == 0) {
+
+            sendHelp(sender);
+            return true;
+
+        }
+
+
+
+
+
+        // /fakeplayer create
+        if (args[0].equalsIgnoreCase("create")) {
+
+
+
+            // /fakeplayer create --random 100
+
+            if (args.length >= 3 &&
+                    args[1].equalsIgnoreCase("--random")) {
+
+
+                if (!(sender instanceof Player)) {
+
+                    sender.sendMessage(
+                            "§cConsole không thể dùng spawn location!"
+                    );
+
+                    return true;
+                }
+
+
+
+                Player player =
+                        (Player) sender;
+
+
+
+                int amount;
+
+
+                try {
+
+                    amount =
+                    Integer.parseInt(args[2]);
+
+
+                } catch (Exception e) {
+
+
+                    sender.sendMessage(
+                            "§cSố lượng phải là số!"
+                    );
+
+                    return true;
+
+                }
+
+
+
+
+                if (amount <= 0) {
+
+                    sender.sendMessage(
+                            "§cSố lượng phải lớn hơn 0!"
+                    );
+
+                    return true;
+
+                }
+
+
+
+
+
+                int created = 0;
+
+
+
+                for (int i = 0; i < amount; i++) {
+
+
+
+                    String name;
+
+
+
+                    do {
+
+                        name =
+                        RandomNameGenerator.generate();
+
+
+                    } while (
+                            FakePlayerManager.exists(name)
+                    );
+
+
+
+
+                    FakePlayerManager.add(name);
+
+
+
+                    FakePlayerPacket.addFakePlayer(
+                            name
+                    );
+
+
+
+                    FakePlayerEntity.spawn(
+                            name,
+                            player.getLocation()
+                    );
+
+
+
+                    created++;
+
+                }
+
+
+
+
+                sender.sendMessage(
+                        "§aĐã tạo §e"
+                        + created
+                        + " §aFake Player!"
+                );
+
+
+                return true;
+
+            }
+
+
+
+
+
+            // /fakeplayer create Steve
+
+            if (args.length >= 2) {
+
+
+                String name =
+                        args[1];
+
+
+
+                if (FakePlayerManager.exists(name)) {
+
+                    sender.sendMessage(
+                            "§cTên này đã tồn tại!"
+                    );
+
+                    return true;
+
+                }
+
+
+
+
+                FakePlayerManager.add(name);
+
+
+
+                FakePlayerPacket.addFakePlayer(
+                        name
+                );
+
+
+
+                if (sender instanceof Player) {
+
+
+                    Player p =
+                            (Player) sender;
+
+
+
+                    FakePlayerEntity.spawn(
+                            name,
+                            p.getLocation()
+                    );
+
+                }
+
+
+
+                sender.sendMessage(
+                        "§aĐã tạo Fake Player: §e"
+                        + name
+                );
+
+
+                return true;
+
+            }
+
+        }
+
+
+
+
+
+
+        // /fakeplayer remove <name>
+
         if (args[0].equalsIgnoreCase("remove")) {
 
 
             if (args.length < 2) {
 
                 sender.sendMessage(
-                        "§cDùng: /fakeplayer remove <name>"
+                        "§c/fakeplayer remove <tên>"
                 );
 
                 return true;
+
             }
 
 
-            String name = args[1];
+
+            String name =
+                    args[1];
 
 
-            if (!FakePlayerManager.exists(name)) {
 
-                sender.sendMessage(
-                        "§cKhông tìm thấy Fake Player: §f" + name
-                );
-
-                return true;
-            }
+            FakePlayerPacket.removeFakePlayer(
+                    name
+            );
 
 
-            FakePlayerManager.remove(name);
+            FakePlayerEntity.remove(
+                    name
+            );
+
+
+            FakePlayerManager.remove(
+                    name
+            );
+
 
 
             sender.sendMessage(
-                    "§c✔ Đã xoá Fake Player: §f" + name
+                    "§aĐã xóa: §e"
+                    + name
             );
 
 
             return true;
+
         }
 
 
 
 
-        // LIST
+
+
+        // /fakeplayer list
+
         if (args[0].equalsIgnoreCase("list")) {
 
 
             sender.sendMessage(
-                    "§b§lDanh sách Fake Player:"
+                    "§6Fake Players:"
             );
 
 
-            if (FakePlayerManager.getPlayers().isEmpty()) {
-
-                sender.sendMessage(
-                        "§7Không có Fake Player."
-                );
-
-                return true;
-            }
-
-
-            for (String player :
+            for (String name :
                     FakePlayerManager.getPlayers()) {
 
+
                 sender.sendMessage(
-                        "§8- §f" + player
+                        "§e- "
+                        + name
                 );
+
             }
 
 
             return true;
+
         }
 
 
 
 
-        // UNKNOWN COMMAND
-        sender.sendMessage(
-                "§cKhông có lệnh này!"
-        );
 
+        sendHelp(sender);
 
         return true;
+
     }
+
+
+
+
+
+
+    private void sendHelp(
+            CommandSender sender
+    ) {
+
+
+        sender.sendMessage(
+                "§8&m----------------"
+        );
+
+        sender.sendMessage(
+                "§6SentioFakePlayer"
+        );
+
+        sender.sendMessage(
+                "§e/fakeplayer create <name>"
+        );
+
+        sender.sendMessage(
+                "§e/fakeplayer create --random <số lượng>"
+        );
+
+        sender.sendMessage(
+                "§e/fakeplayer remove <name>"
+        );
+
+        sender.sendMessage(
+                "§e/fakeplayer list"
+        );
+
+        sender.sendMessage(
+                "§8&m----------------"
+        );
+
+    }
+
 }
