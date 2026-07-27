@@ -1,120 +1,286 @@
 package com.sentio.fakeplayer;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
+
 
 public class FakePlayerEntity {
 
 
-    // Lưu vị trí của Fake Player
-    private static final Map<String, Location> locations = new HashMap<>();
-
-
-
-    // Tạo Fake Player tại vị trí
-    public static boolean spawn(String name, Location location) {
-
-
-        if (locations.containsKey(name)) {
-            return false;
-        }
-
-
-        locations.put(
-                name,
-                location.clone()
-        );
-
-
-        return true;
-    }
+    // Lưu dữ liệu Fake Player
+    private static final Map<String, FakeData> fakePlayers =
+            new HashMap<>();
 
 
 
 
-    // Xóa Fake Player
-    public static boolean remove(String name) {
 
-
-        if (!locations.containsKey(name)) {
-            return false;
-        }
-
-
-        locations.remove(name);
-
-
-        return true;
-    }
-
-
-
-
-    // Di chuyển Fake Player
-    public static void teleport(
+    /**
+     * Tạo Fake Player
+     */
+    public static boolean spawn(
             String name,
             Location location
     ) {
 
 
-        if (locations.containsKey(name)) {
+        if (fakePlayers.containsKey(name)) {
 
-            locations.put(
-                    name,
-                    location.clone()
+            return false;
+
+        }
+
+
+
+        FakeData data =
+                new FakeData(
+                        name,
+                        UUID.randomUUID(),
+                        location.clone()
+                );
+
+
+
+        fakePlayers.put(
+                name,
+                data
+        );
+
+
+
+        Bukkit.getLogger().info(
+                "[SentioFakePlayer] Spawn fake player: "
+                + name
+        );
+
+
+        return true;
+
+    }
+
+
+
+
+
+    /**
+     * Xóa Fake Player
+     */
+    public static boolean remove(
+            String name
+    ) {
+
+
+        FakeData data =
+                fakePlayers.remove(name);
+
+
+
+        if (data != null) {
+
+
+            Bukkit.getLogger().info(
+                    "[SentioFakePlayer] Removed: "
+                    + name
             );
+
+
+            return true;
+
         }
+
+
+
+        return false;
+
     }
 
 
 
 
-    // Lấy vị trí
-    public static Location getLocation(String name) {
+
+    /**
+     * Kiểm tra tồn tại
+     */
+    public static boolean exists(
+            String name
+    ) {
 
 
-        Location loc =
-                locations.get(name);
+        return fakePlayers
+                .containsKey(name);
+
+    }
 
 
-        if (loc == null) {
+
+
+
+    /**
+     * Lấy vị trí
+     */
+    public static Location getLocation(
+            String name
+    ) {
+
+
+        FakeData data =
+                fakePlayers.get(name);
+
+
+
+        if (data == null) {
+
             return null;
+
         }
 
 
-        return loc.clone();
+
+        return data.location;
+
     }
 
 
 
 
 
-    // Kiểm tra Fake Player tồn tại
-    public static boolean exists(String name) {
+    /**
+     * Lấy UUID
+     */
+    public static UUID getUUID(
+            String name
+    ) {
 
-        return locations.containsKey(name);
+
+        FakeData data =
+                fakePlayers.get(name);
+
+
+
+        if (data == null) {
+
+            return null;
+
+        }
+
+
+
+        return data.uuid;
+
     }
 
 
 
 
 
-    // Lấy toàn bộ Fake Player
-    public static Set<String> getEntities() {
+    /**
+     * Lấy danh sách
+     */
+    public static Map<String, FakeData> getFakePlayers() {
 
-        return locations.keySet();
+
+        return fakePlayers;
+
     }
 
 
 
 
 
-    // Xóa tất cả
+    /**
+     * Xóa tất cả
+     */
     public static void clear() {
 
-        locations.clear();
+
+        fakePlayers.clear();
+
+
+        Bukkit.getLogger().info(
+                "[SentioFakePlayer] All fake players removed"
+        );
+
     }
+
+
+
+
+
+    /**
+     * Số lượng Fake Player
+     */
+    public static int size() {
+
+
+        return fakePlayers.size();
+
+    }
+
+
+
+
+
+    /**
+     * Data của Fake Player
+     */
+    public static class FakeData {
+
+
+        private final String name;
+
+        private final UUID uuid;
+
+        private final Location location;
+
+
+
+        public FakeData(
+                String name,
+                UUID uuid,
+                Location location
+        ) {
+
+
+            this.name = name;
+
+            this.uuid = uuid;
+
+            this.location = location;
+
+        }
+
+
+
+
+        public String getName() {
+
+            return name;
+
+        }
+
+
+
+
+        public UUID getUuid() {
+
+            return uuid;
+
+        }
+
+
+
+
+        public Location getLocation() {
+
+            return location;
+
+        }
+
+    }
+
 }
