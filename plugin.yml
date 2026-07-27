@@ -1,24 +1,21 @@
 name: SentioFakePlayer
-version: 1.0.0
-main: com.sentio.fakeplayer.SentioFakePlayer
+version: 1.0
+main: com.sentio.fakeplayer.Main
 api-version: '1.21'
 
 author: Sentio
-description: Fake Player system for Sentio Network
+description: Fake Player plugin for Paper 1.21.1
 
 
 commands:
-
   fakeplayer:
     description: Manage fake players
-    usage: /fakeplayer <create|remove|list>
+    usage: /fakeplayer <create|remove|list|clear|reload>
     aliases:
       - fp
 
 
-
 permissions:
-
-  sentio.fakeplayer:
-    description: Use FakePlayer commands
+  sentio.fakeplayer.admin:
+    description: Full access to FakePlayer commands
     default: op
