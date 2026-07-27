@@ -1,0 +1,156 @@
+# =================================
+# SentioFakePlayer Configuration
+# Version: 1.0.0
+# =================================
+
+
+settings:
+
+  # Số Fake Player tối đa có thể tạo
+  max-fakeplayers: 500
+
+
+  # Cho phép tạo tên random
+  random-name: true
+
+
+  # Bật hệ thống TAB Fake Player
+  tab-display: true
+
+
+  # Bật AI di chuyển
+  ai-movement: true
+
+
+  # Bật Fake Player tự chat
+  ai-chat: true
+
+
+  # Bật Fake Player trả lời người chơi
+  ai-reply: true
+
+
+
+
+
+# =================================
+# AI Settings
+# =================================
+
+ai:
+
+
+  # Thời gian Fake Player di chuyển
+  # 20 ticks = 1 giây
+  movement-delay: 200
+
+
+
+  # Thời gian chat random
+  chat-delay: 1200
+
+
+
+  # Bán kính di chuyển
+  move-radius: 5.0
+
+
+
+  # Delay trả lời chat người chơi
+  reply-delay: 40
+
+
+
+
+
+# =================================
+# Fake Player Chat
+# =================================
+
+chat:
+
+
+  # Format chat
+
+  format: "&7{name} &8» &f{message}"
+
+
+
+  # Danh sách câu nói random
+
+  messages:
+
+    - "Xin chào mọi người!"
+    - "Server hôm nay đông quá!"
+    - "Có ai PvP không?"
+    - "Ai muốn chơi cùng không?"
+    - "Sentio Network thật tuyệt!"
+    - "Chúc mọi người chơi vui vẻ!"
+    - "Có ai cần hỗ trợ không?"
+    - "GG!"
+    - "Mình mới vào server."
+    - "PvP vui quá!"
+
+
+
+
+
+# =================================
+# Random Name
+# =================================
+
+names:
+
+
+  # Thêm số vào tên
+  add-number: true
+
+
+  # Thêm dấu _
+  add-underscore: true
+
+
+  # Hậu tố random
+
+  suffix:
+
+    - "_YT"
+    - "_MC"
+    - "_PvP"
+    - "_Pro"
+    - "_X"
+    - "_VN"
+    - "_GG"
+    - ""
+
+
+
+
+
+# =================================
+# Messages
+# =================================
+
+messages:
+
+
+  no-permission: "&cBạn không có quyền!"
+
+
+  created: "&aĐã tạo &e{amount} &aFake Player!"
+
+
+  removed: "&aĐã xóa Fake Player &e{name}"
+
+
+  limit: "&cĐã đạt giới hạn Fake Player!"
+
+
+
+  help:
+
+    - "&6SentioFakePlayer"
+    - "&e/fakeplayer create <name>"
+    - "&e/fakeplayer create --random <số lượng>"
+    - "&e/fakeplayer remove <name>"
+    - "&e/fakeplayer list"
